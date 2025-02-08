@@ -3,14 +3,43 @@ import cors from 'cors';
 import http from 'http';
 import { Server } from "socket.io";
 import authRoutes from "./routes/auth.route.js";
+import dotenv from 'dotenv'
 const app = express()
+
+// Middleware to parse JSON bodies
+app.use(express.json ());   
+
+dotenv.config();
+
+const PORT = process.env.PORT;
 
 // Allow CORS for Express routes
 app.use(cors());
 
+// Enabling fREE SSL/TLS can help encrypt the communication of your applications. 
+/*const options = {
+  // The path should be changed accordingly to your setup
+  cert: fs.readFileSync('./sslcert/fullchain.pem'),
+  key: fs.readFileSync('./sslcert/privkey.pem')
+};*/
+
 app.use("/api/auth", authRoutes);
 
-// Create a new HTTP server by passing the Express app object.
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled Error:', err);
+  res.status(500).json({ error: 'Internal Server Error', details: err.message });
+});
+
+// The validator is a generic middleware that gets the entity it should validate and takes care to return
+// HTTP status 400 (Bad Request) should the body payload validation fail
+/*app.use((req, res, next) => {
+
+
+})*/
+
+// Create a new HTTP server by passing the Express app object, can add createServer(options,app).
 const server = http.createServer(app);
 
 // Initialize a new instance of socket.io by passing the server (the HTTP server) object.
@@ -72,4 +101,4 @@ const io = new Server(server, {
 
   
 
-  server.listen(5000, () => console.log("Server running on port 5000"));
+  server.listen(PORT, () => console.log("Server running on port", PORT));
