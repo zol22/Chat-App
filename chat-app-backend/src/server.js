@@ -1,13 +1,14 @@
-const express = require('express')
-const cors = require("cors");
-const http = require("http");
-const { Server } = require("socket.io");
+import express from 'express'
+import cors from 'cors';
+import http from 'http';
+import { Server } from "socket.io";
 import authRoutes from "./routes/auth.route.js";
 const app = express()
-const port = 3000
 
 // Allow CORS for Express routes
 app.use(cors());
+
+app.use("/api/auth", authRoutes);
 
 // Create a new HTTP server by passing the Express app object.
 const server = http.createServer(app);
@@ -21,7 +22,6 @@ const io = new Server(server, {
   });
 
 
-app.use("api/auth", authRoutes)
 // I listen on the connection event for incoming sockets and log it to the console.
   io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
