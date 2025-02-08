@@ -2,8 +2,10 @@ const express = require('express')
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
+import authRoutes from "./routes/auth.route.js";
 const app = express()
 const port = 3000
+
 // Allow CORS for Express routes
 app.use(cors());
 
@@ -12,25 +14,31 @@ const server = http.createServer(app);
 
 // Initialize a new instance of socket.io by passing the server (the HTTP server) object.
 const io = new Server(server, {
-    cors: { origin: "*", 
+    cors: { 
+        origin: "*", 
         methods: ["GET", "POST"],
         credentials: true }
   });
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-  });
 
+app.use("api/auth", authRoutes)
 // I listen on the connection event for incoming sockets and log it to the console.
   io.on('connection', (socket) => {
-    console.log('a user connected');
+    console.log(`User connected: ${socket.id}`);
 
-    socket.on('chat message', (msg) => {
-        io.emit('chat message', msg);
+    socket.on('join_room', (data) => {
+        socket.join(data.room);
+
     } );
-    socket.on('disconnect', () => {
+
+    socket.on('send_message', (data) => {
+      console.log("📨 Server received message:", JSON.stringify(data, null, 2));
+        //socket.broadcast.emit('receive_message', data);
+        socket.to(data.room).emit("receive_message", {messages: data.messages});
+    } );
+    /*socket.on('disconnect', () => {
         console.log('user disconnected');
-      } )
+      } )*/
   })
 
 /* WebSockets Connection:
