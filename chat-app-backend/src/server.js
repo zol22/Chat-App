@@ -3,11 +3,14 @@ import cors from 'cors';
 import http from 'http';
 import { Server } from "socket.io";
 import authRoutes from "./routes/auth.route.js";
+import messageRoutes from "./routes/message.route.js";
 import dotenv from 'dotenv'
+import cookieParser from "cookie-parser";
 const app = express()
 
 // Middleware to parse JSON bodies
-app.use(express.json ());   
+app.use(express.json ());
+app.use(cookieParser()); // Takes the cookie data from the request header, decodes it, and puts it into a convenient format on the request object.
 
 dotenv.config();
 
@@ -24,6 +27,8 @@ app.use(cors());
 };*/
 
 app.use("/api/auth", authRoutes);
+app.use("/api/message", messageRoutes);
+
 
 
 // Global error handler

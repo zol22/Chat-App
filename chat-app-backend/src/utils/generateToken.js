@@ -9,6 +9,7 @@ export const generateToken =  (userId, res) => {
         }   
     );
 
+    // This token is sent to the client as an HTTP-only cookie named jwt in the response.
     res.cookie('jwt', token, { 
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         httpOnly: true,// prevent XSS attacks cross-site scripting attacks
@@ -17,6 +18,11 @@ export const generateToken =  (userId, res) => {
     
     });   
 
+    /*  Subsequent Requests:
+        For future requests to protected routes, the client automatically includes the jwt cookie in the HTTP headers.
+        The server extracts and verifies this token to authenticate the user.
+    
+    */
     return token;
 
 }

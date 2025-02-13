@@ -1,0 +1,14 @@
+model User {
+    id       Int    @id @default(autoincrement())
+    name     String
+    email    String @unique
+    password String
+    createdAt DateTime @default(now())
+    profilePic String?
+
+    // One-to-many relationships with the Message model, differentiated by the relation names: "SentMessages" and "ReceivedMessages".
+    sentMessages   Message[] @relation("SentMessages")
+    receivedMessages Message[] @relation("ReceivedMessages")
+}
+
+

@@ -1,0 +1,15 @@
+// prisma/schema/message.prisma
+
+model Message {
+    id          Int      @id @default(autoincrement())
+    senderId    Int // store references to the User model's id.
+    receiverId  Int // store references to the User model's id.
+    text        String?
+    image       String?
+    createdAt   DateTime @default(now())
+
+    // Many-to-one relationship with the User model, specifying the relation names, the fields in the Message model that hold the foreign keys (senderId and receiverId), and the referenced field in the User model (id).
+    sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+    receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  
+  }
