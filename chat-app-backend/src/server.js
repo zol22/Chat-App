@@ -17,7 +17,10 @@ dotenv.config();
 const PORT = process.env.PORT;
 
 // Allow CORS for Express routes
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
 
 // Enabling fREE SSL/TLS can help encrypt the communication of your applications. 
 /*const options = {

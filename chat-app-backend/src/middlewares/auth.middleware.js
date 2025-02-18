@@ -1,12 +1,16 @@
 import jwt from 'jsonwebtoken';
 import { findUserById } from '../services/auth.service.js';
 
-// next() function will call the updatedProfile function
-// This middleware checks for the presence of the jwt cookie in the incoming request
+/* This middleware extracts the access token from the cookie, verifies it, and allows access if valid.
+    - If the access token expires, the client can call the /auth/refresh endpoint, sending the refresh token.
+    - The server verifies the refresh token and issues a new access token. 
+    - next() function will call the next function specified in each route.
+
+*/
 export const protectRoute = async (req, res, next) => {
     try {
-        // Get the token from the cookie
-        const token = req.cookies.jwt;
+        // Get the Accesstoken from the cookie
+        const token = req.cookies.accessToken;
         if (!token) {
             return res.status(401).json({ error: 'Unauthorized - No Token Provided' });
         }

@@ -1,7 +1,9 @@
 import { registerUser, findUser, updateUserProfile } from "../services/auth.service.js";
 import bycrypt from "bcrypt";
-import { generateToken } from "../utils/generateToken.js";
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../lib/cloudinary.js";
+import { setAuthCookies } from "../lib/setAuthCookies.js";
+import jwt from 'jsonwebtoken';
+import { generateAccessToken } from "../lib/generateToken.js";
 
 // Apply strong password policies, both for ops and in-application user management 
 export const signup = async (req, res) => {
@@ -31,7 +33,7 @@ export const signup = async (req, res) => {
 
             // Check if user was created successfully
             if (newUser) {
-                generateToken(newUser.id, res);
+                setAuthCookies(newUser.id,res); // Set both tokens as cookies in the response
                 res.status(201).json({ message: 'User registered successfully', user: newUser });
             } else {
                 return res.status(400).json({ error: 'Invalid User Data' }); 
@@ -60,7 +62,7 @@ export const login = async (req, res) => {
             // Compare the hashed password with the password entered by the user
             const isMatch = await bycrypt.compare(password, user.password);
             if (isMatch) {
-                generateToken(user.id, res); // On login success, return a JWT token that the client can use to authenticate future requests
+                setAuthCookies(user.id,res);
                 res.status(200).json({ message: 'User logged in successfully', user: user });
             } else {
                 return res.status(400).json({ error: 'Invalid Email or Password' }); // On login failure, don't let the user know whether the username or password verification failed, just return a common auth error
@@ -75,14 +77,27 @@ export const login = async (req, res) => {
 
 }
 
+
+// VERIFYYY IS THIS CORRECT TO REMOVE BOTH COOKIES 
 export const logout = (req, res) => {
 
     try {
-        res.cookie("jwt", "", { maxAge: 0 });  
-        res.status(200).json({ message: 'User logged out successfully' });  
+        // Define the cookie options matching those used during cookie creation
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            path: '/', // Ensure this matches the path used when setting the cookies
+            // domain: 'yourdomain.com' // Uncomment and set if a specific domain was used
+        };
+
+        // Clear the accessToken and refreshToken cookies
+        res.clearCookie('accessToken', cookieOptions);
+        res.clearCookie('refreshToken', cookieOptions);
+
+        res.status(200).json({ message: 'User logged out successfully' });
     } catch (error) {
-        res.status(500).json({ error: 'Internal Sever Error', details : error.message });
-        
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 }
 
@@ -104,6 +119,41 @@ export const updateProfile = async (req, res) => {
         res.status(500).json({ error: 'Internal Sever Error', details : error.message });
     }
 }
+
+
+
+export const refreshAccessToken = (req, res) => {
+    const { refreshToken } =  req.cookies;
+
+    if (!refreshToken) {
+        return res.status(401).json({error: 'No refresh token provided'})
+    }
+
+    try {
+        // Verify the refresh token using the refresh secret
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
+        
+        if (!decoded) {
+            return res.status(403).json({ error: 'Forbidden- Invalid Token' });
+        }
+
+        // Generate a new access token
+        const newAccessToken = generateAccessToken(decoded.userId)
+
+        // Set new access as cookie
+        res.cookie('accessToken', newAccessToken, {
+            maxAge: 15 * 60 * 1000, // 15 minutes
+            httpOnly: true,
+            sameSite: 'Strict',
+            secure: process.env.NODE_ENV !== 'development',
+        })
+        res.json({ message: 'Access token refreshed', accessToken: newAccessToken });
+
+    } catch (error) {
+        res.status(401).json({ error: 'Invalid refresh token', details: error.message });
+    }
+}
+
 
 
 export const checkAuth = (req, res) => {
