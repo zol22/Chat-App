@@ -3,18 +3,12 @@ import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
-
-
-
-interface LoginFormState {
-  email: string,
-  password: string,
-}
+import { LoginData } from "../types/authTypes";
 
 
 const LoginPage: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<LoginFormState>({
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [formData, setFormData] = useState<LoginData>({
     email: "",
     password: "",
   });
@@ -46,6 +40,8 @@ const LoginPage: React.FC = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+
+            {/* Email */} 
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Email</span>
@@ -64,6 +60,7 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Password */} 
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Password</span>
@@ -79,6 +76,7 @@ const LoginPage: React.FC = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
+                {/* Eye password secret button */}
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -92,7 +90,8 @@ const LoginPage: React.FC = () => {
                 </button>
               </div>
             </div>
-
+            
+            {/* Sign in Button  */}
             <button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
               {isLoggingIn ? (
                 <>
@@ -113,6 +112,7 @@ const LoginPage: React.FC = () => {
               </Link>
             </p>
           </div>
+
         </div>
       </div>
 

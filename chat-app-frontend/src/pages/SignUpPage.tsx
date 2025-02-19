@@ -5,16 +5,12 @@ import { Link } from "react-router-dom";
 
 import AuthImagePattern from "../components/AuthImagePattern.jsx";
 import toast from "react-hot-toast";
+import { SignupData } from "../types/authTypes.js";
 
-interface SignUpFormState {
-  name: string;
-  email: string,
-  password: string,
-}
 
 const SignUpPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [formData, setFormData] = useState<SignUpFormState>({
+  const [formData, setFormData] = useState<SignupData>({
     name: "",
     email: "",
     password: "",

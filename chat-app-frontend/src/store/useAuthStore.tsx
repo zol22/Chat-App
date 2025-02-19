@@ -1,40 +1,7 @@
 import { create } from 'zustand'
 import { axiosInstance  } from '../lib/axios.tsx'
 import toast from 'react-hot-toast';
-
-
-interface AuthUser {
-  id: Number
-  name:string
-  email: string
-  password: string
-  createdAt: Number
-  profilePic: string
-}
-
-interface SignupData {
-  name: string;
-  email: string;
-  password: string;
- }
-
- interface LoginData {
-  email: string;
-  password: string
- }
-
-interface AuthState {
-  authUser: AuthUser | any; // Replace 'any' with a specific type if available
-  isSigningUp: boolean;
-  isLoggingIn: boolean; // State for logging button
-  isUpdatingProfile: boolean;
-  isCheckingAuth: boolean;
-  checkAuth: () => Promise<void>;
-  signup: (data: SignupData) => Promise<void>
-  login: (data: LoginData) => Promise<void>
-  logout: () => Promise<void>
-  updateProfile: (data: any) => Promise<void>
-}
+import { AuthState } from "../types/authTypes"; //  Import types
 
 
 // ❌ No need to manually handle errors! Interceptors take care of it.

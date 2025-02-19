@@ -21,10 +21,10 @@ axiosInstance.interceptors.response.use(
   
         switch (status) {
           case 400:
-            toast.error(data?.message || "❌ Bad Request: Please check your input.");
+            toast.error(data?.message || " Bad Request: Please check your input.");
             break;
           case 401:
-            toast.error("🔒 Unauthorized: Please login again.");
+            toast.error(" Unauthorized: Please login again.");
             // Optionally, refresh the token if implemented
             /* 
               try {
@@ -36,16 +36,16 @@ axiosInstance.interceptors.response.use(
             */
             break;
           case 403:
-            toast.error("🚫 Forbidden: You do not have permission.");
+            toast.error(" Forbidden: You do not have permission.");
             break;
           case 404:
-            toast.error("🔎 Not Found: The requested resource does not exist.");
+            toast.error(" Not Found: The requested resource does not exist.");
             break;
           case 409:
             toast.error("Conflict: User already exists.");
             break;
           case 500:
-            toast.error("⚠️ Server Error: Please try again later.");
+            toast.error(" Server Error: Please try again later.");
             break;
           default:
             toast.error(data?.message || "An unexpected error occurred.");
