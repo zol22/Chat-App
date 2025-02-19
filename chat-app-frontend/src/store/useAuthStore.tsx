@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { axiosInstance  } from '../lib/axios.tsx'
-import axios, { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
 
 
@@ -13,6 +12,17 @@ interface AuthUser {
   profilePic: string
 }
 
+interface SignupData {
+  name: string;
+  email: string;
+  password: string;
+ }
+
+ interface LoginData {
+  email: string;
+  password: string
+ }
+
 interface AuthState {
   authUser: AuthUser | any; // Replace 'any' with a specific type if available
   isSigningUp: boolean;
@@ -21,16 +31,13 @@ interface AuthState {
   isCheckingAuth: boolean;
   checkAuth: () => Promise<void>;
   signup: (data: SignupData) => Promise<void>
+  login: (data: LoginData) => Promise<void>
   logout: () => Promise<void>
+  updateProfile: (data: any) => Promise<void>
 }
 
-interface SignupData {
-  name: string;
-  email: string;
-  password: string;
- }
- 
 
+// ❌ No need to manually handle errors! Interceptors take care of it.
 export const useAuthStore = create<AuthState>((set) => ({
   authUser: null,
   isSigningUp: false,
@@ -41,41 +48,28 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const res = await axiosInstance.get('/auth/check');
       set({ authUser: res.data });
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.error('Error in checkAuth:', error.message);
-      } else {
-        // Handle non-Axios errors
-        console.error('Unexpected error in checkAuth:', error);
-      }
-      set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
     }
   },
   signup: async (data) => {
     set({ isSigningUp: true})
-
     try {
-      const res = await axiosInstance.post("/auth/signup", data)
+      const res = await axiosInstance.post("/auth/signup", data) // res container whatever my backend returns in the response body
       set({ authUser: res.data})
-      toast.success("Account created successfullt")
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        // The error is an AxiosError
-        if (error.response) {
-          //Accessing the response data safely
-          toast.error(error.response.data.message)
-        } else{
-          // Handle cases where there is no response (e.g., network errors)
-          toast.error('No response received from the server')
-        }
-      } else {
-        // Handle non-Axios errors
-        toast.error('An unexpected error occured.')
-      }
+      toast.success("Account created successfully")
     } finally {
       set({ isSigningUp: false})
+    }
+  },
+  login: async (data) => {
+    set({ isLoggingIn : true})
+    try {
+      const res = await axiosInstance.post("/auth/login", data);
+      set({ authUser: res.data})
+      toast.success("Logged in successfully")
+    } finally {
+      set({ isLoggingIn: false})
     }
   },
   logout: async() => {
@@ -84,19 +78,17 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ authUser: null})
       toast.success("Logged out successfully")
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        // The error is an AxiosError
-        if (error.response) {
-          //Accessing the response data safely
-          toast.error(error.response.data.message)
-        } else{
-          // Handle cases where there is no response (e.g., network errors)
-          toast.error('No response received from the server')
-        }
-      } else {
-        // Handle non-Axios errors
-        toast.error('An unexpected error occured.')
-      }
+      // ❌ No need to manually handle errors! Interceptors take care of it.
+    }
+  },
+  updateProfile: async (data) => {
+    set({ isUpdatingProfile: true}) 
+    try {
+      const res = await axiosInstance.put("/auth/updateProfile", data)
+      set({ authUser: res.data })
+      toast.success("Profile updated successfully")
+    }  finally {
+      set({ isUpdatingProfile: false})
     }
   }
 }));

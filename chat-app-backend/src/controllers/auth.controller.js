@@ -12,19 +12,19 @@ export const signup = async (req, res) => {
 
     // Validate Incoming Data from  SQL injection and XSS attacks
     if (!email || !password || !name) {
-        return res.status(400).json({ error: 'Name, Email and Password are required' });
+        return res.status(400).json({ message: 'Name, Email and Password cannot be null', error: 'Name, Email and Password are required' });
     }
 
     try {
         // Validate password length
         if (password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+            return res.status(400).json({ message:'Password must be at least 6 characters long' ,error: 'Password must be at least 6 characters long' });
         }
 
         // Check if user is already registered
         const user = await findUser(email);
         if (user) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(409).json({ message:'User already exist', error: 'User already exists' });
         } else {
             // Hash the password before storing it in the database
             const salt = await bycrypt.genSalt(10);
@@ -36,11 +36,12 @@ export const signup = async (req, res) => {
                 setAuthCookies(newUser.id,res); // Set both tokens as cookies in the response
                 res.status(201).json({ message: 'User registered successfully', user: newUser });
             } else {
-                return res.status(400).json({ error: 'Invalid User Data' }); 
+                return res.status(500).json({message:"An error occurred, user was not registered properly", error: 'User creation failed' }); 
             }
         }
 
     } catch (error) {
+        console.error("Signup Error:", error);
         res.status(500).json({ error: 'Internal Sever Error', details : error.message });
     }
 }
@@ -52,7 +53,7 @@ export const login = async (req, res) => {
 
     // Validate Incoming Data from  SQL injection and XSS attacks
     if (!email || !password) {
-        return res.status(400).json({ error: 'Email and Password are required' });
+        return res.status(400).json({ messgae:'Email and Password cannot be null',error: 'Email and Password are required' });
     }
 
     try {
@@ -65,10 +66,10 @@ export const login = async (req, res) => {
                 setAuthCookies(user.id,res);
                 res.status(200).json({ message: 'User logged in successfully', user: user });
             } else {
-                return res.status(400).json({ error: 'Invalid Email or Password' }); // On login failure, don't let the user know whether the username or password verification failed, just return a common auth error
+                return res.status(403).json({ message: 'Invalid credentials', error: 'Invalid Email or Password' });// Forbidden for incorrect password,  On login failure, don't let the user know whether the username or password verification failed, just return a common auth error
             }   
         } else {
-            return res.status(400).json({ error: 'Invalid Email or Password' });
+            return res.status(404).json({ message: 'User not found ', error: 'User not found' });
         }
         
     } catch (error) {
