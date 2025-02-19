@@ -11,18 +11,19 @@ import { io } from 'socket.io-client';
 import './App.css'
 import { useAuthStore} from './store/useAuthStore';
 import { Loader } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 
 const socket = io('http://localhost:5000') // Establish a connection to the Socket.IO server at the specified URL.
 
 function App() {
 
-  const [room, setRoom] = useState<string>('');
-  const [messages, setMessages] = useState<string>('');
-  const [messageReceived, setMessageReceived] = useState<string>('');
+  //const [room, setRoom] = useState<string>('');
+  //const [messages, setMessages] = useState<string>('');
+  //const [messageReceived, setMessageReceived] = useState<string>('');
 
   const {authUser, checkAuth, isCheckingAuth} = useAuthStore();
   
-  const joinRoom = () => {
+  /*const joinRoom = () => {
     if (room !== '') {
       socket.emit('join_room', {room})
     }
@@ -30,7 +31,7 @@ function App() {
   }
   const sendMessage = () => {
     socket.emit('send_message', { messages, room})
-  }
+  }*/
 
   useEffect(() => {
 
@@ -60,6 +61,9 @@ function App() {
         <Route path="/settings" element={<SettingsPage />}/>
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />}/>
       </Routes>
+
+
+      <Toaster />
 
         {/*<h1 className='text-red-500'>Room:</h1>
         <input type="text" name="room" onChange={(e)=> setRoom(e.target.value)}/>
