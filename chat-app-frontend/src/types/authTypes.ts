@@ -1,10 +1,7 @@
-export interface AuthUser {
-  id: number;
-  name: string;
-  email: string;
-  password: string
-  profilePic?: string;
-  createdAt: string;
+import { User } from "./userTypes";
+
+export interface AuthUser extends User {
+  password: string // ✅ Only needed for authentication
 }
 
 export interface SignupData {

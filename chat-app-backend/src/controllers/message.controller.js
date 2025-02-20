@@ -2,8 +2,16 @@ import { findAllUsersExceptLoggedInUser, findMessages, createNewMessage } from '
 
 // Get all users except loggedInUser for sidebar
 export const getUsersForSidebar = async (req, res) => {
+
+    console.log(`From message.controller, req.user: ${JSON.stringify(req.user)}`)
     try {
-        const loggedInUserId = req.user._id;
+        const loggedInUserId = req.user.id;
+
+        console.log(`This is the loggedIn User ID: ${loggedInUserId}`)
+        if (!loggedInUserId) {
+            return res.status(401).json({ error: "Unauthorized - User ID missing" });
+        }
+
         const filteredUsers = await findAllUsersExceptLoggedInUser(loggedInUserId);
 
         res.status(200).json({ success: true, filteredUsers});
@@ -16,7 +24,7 @@ export const getUsersForSidebar = async (req, res) => {
 // Retrieve all messages exchanged between two users: the currently logged-in user (loggedInUserId) and another user (userToChatId).
 export const getMessages = async (req, res) => {
     try {
-        const loggedInUserId = req.user._id;
+        const loggedInUserId = req.user.id;
         const {id:userToChatId} = req.params.id;
         const messages = await findMessages(loggedInUserId, userToChatId);
 
@@ -30,8 +38,8 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const { text, image } = req.body;
-        const {id:receiverId } = req.params._id
-        const loggedInUserId = req.user._id // Extract the userId saved in the request which was saved in there thanks to the middleware
+        const {id:receiverId } = req.params.id
+        const loggedInUserId = req.user.id // Extract the userId saved in the request which was saved in there thanks to the middleware
 
         let imageUrl;
         if (image) { // If user is sending an image, we will upload it to cloudinary
@@ -44,6 +52,7 @@ export const sendMessage = async (req, res) => {
 
         res.status(200).json({ success: true, newMessage});
     } catch (error) {
-        res.status(500).json({ error: 'Internal Sever Error', details : error.message });
+                res.status(500).json({ error: 'Internal Sever Error', details : error.message });
+
     }
 }

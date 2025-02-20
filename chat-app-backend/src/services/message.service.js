@@ -13,10 +13,7 @@ export const findAllUsersExceptLoggedInUser = async (loggedInUserId) => {
             name: true,
             email: true,
             profilePic: true
-        },
-        omit: {
-            password: true
-        }   
+        }
     })
     return allUsers    
 

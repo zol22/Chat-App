@@ -12,6 +12,7 @@ import './App.css'
 import { useAuthStore} from './store/useAuthStore';
 import { Loader } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
+import { useThemeStore } from './store/useThemeStore';
 
 const socket = io('http://localhost:5000') // Establish a connection to the Socket.IO server at the specified URL.
 
@@ -22,6 +23,7 @@ function App() {
   //const [messageReceived, setMessageReceived] = useState<string>('');
 
   const {authUser, checkAuth, isCheckingAuth} = useAuthStore();
+  const { theme } = useThemeStore();
   
   /*const joinRoom = () => {
     if (room !== '') {
@@ -42,6 +44,8 @@ function App() {
     })  */
   },[checkAuth]) // whenever an event is emited, the useEffect hook will run.
 
+  
+
   console.log(authUser)
 
   if (isCheckingAuth && !authUser)
@@ -52,7 +56,7 @@ function App() {
     );
 
   return (
-    <div>
+    <div data-theme={theme}>
       <NavBar />
       <Routes >
         <Route path="/" element={ authUser ? <HomePage /> : <Navigate to="/login"/>}/> {/*If user is authenticated, they can see HomePage, if not, navigate to Login */}

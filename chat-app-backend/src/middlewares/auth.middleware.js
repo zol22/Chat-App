@@ -11,6 +11,7 @@ export const protectRoute = async (req, res, next) => {
     try {
         // Get the Accesstoken from the cookie
         const token = req.cookies.accessToken;
+        console.log(`This is the token: ${token}`)
         if (!token) {
             return res.status(401).json({ error: 'Unauthorized - No Token Provided' });
         }
@@ -24,6 +25,9 @@ export const protectRoute = async (req, res, next) => {
 
         // userId is the payload of the token that was signed in the generateToken function
         const user = await findUserById(decoded.userId);
+
+
+        console.log(`This is the user info found thanks to the token: ${JSON.stringify(user)}`)
 
         if (!user) {
             return res.status(404).json({ error: 'User Not Found' });
